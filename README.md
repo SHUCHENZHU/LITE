@@ -48,6 +48,7 @@ The repository is organized as follows:
 
 **Training Scripts**:
 - `pretrain_pile_llama2/qwen2moe.py`: Script for pre-training LLaMA2/Qwen2MoE models on the Pile dataset.
+- `muonlite.py`: Implementation of the Muon-LITE optimizer. **Current version defaults to LLaMA2/Qwen2MoE.** To adapt for other architectures, please modify the internal block mapping to correctly identify layer types (QK, VO, FFN, EMB, NORM, OUT, etc.).
 
 **Bash Scripts**:
 - `Muon_1B_pile.sh`: Pre-trains a 1.3B LLaMA2 model using the vanilla Muon optimizer (RMSNorm alignment version).
