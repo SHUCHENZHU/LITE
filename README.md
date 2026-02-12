@@ -6,9 +6,9 @@ We introduce **LITE**, a generalized strategy for accelerating LLM pre-training 
 <div align="center">
 <table>
 <tr>
-<td align="center"><img src="./figures/acc_diag.pdf" width="200" alt="Accuracy Diagram"/></td>
-<td align="center"><img src="./figures/muon_long_250m.pdf" width="200" alt="Muon Long 250M"/></td>
-<td align="center"><img src="./figures/muon_scaling.pdf" width="200" alt="Muon Scaling"/></td>
+    <td align="center"><img src="./figures/acc_diag.png" width="32%" /></td>
+    <td align="center"><img src="./figures/muon_long_250m.png" width="32%" /></td>
+    <td align="center"><img src="./figures/muon_scaling.png" width="32%" /></td>
 </tr>
 </table>
 </div>
