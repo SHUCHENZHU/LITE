@@ -13,7 +13,9 @@ We introduce **LITE**, a generalized strategy for accelerating LLM pre-training 
 </table>
 </div>
 
-![](./figures/framework.png)
+<div align="center">
+  <img src="./figures/framework.png" width="600" alt="Framework Diagram" />
+</div>
 
 ## Requirements
 
