@@ -17,6 +17,7 @@ def get_scheculer(
     restart_warmup_steps=None,
     adjust_step=0,
     last_epoch=-1,
+    stable_ratio=0.9,
 ):
     if adjust_step != 0 and scheduler_type != "cosine_restarts":
         raise ValueError("adjust_step is only supported for cosine_restarts scheduler")
@@ -49,9 +50,57 @@ def get_scheculer(
             last_epoch=last_epoch,
             adjust_step=adjust_step,
         )
-
+    if scheduler_type == "wsd":
+        return get_wsd_schedule_with_min_lr(
+            optimizer,
+            num_warmup_steps=warmup_steps,
+            num_training_steps=num_training_steps,
+            min_lr_ratio=min_lr_ratio,
+            stable_ratio=stable_ratio,
+            last_epoch=last_epoch,
+        )
+        
+        
+        
     raise NotImplementedError(f"Scheduler {scheduler_type} is not implemented")
 
+
+
+def get_wsd_schedule_with_min_lr(
+    optimizer,
+    num_warmup_steps,
+    num_training_steps,
+    stable_ratio=0.66,
+    min_lr_ratio=0.0,
+    last_epoch=-1,
+):
+    """
+    Warmup-Step-Decay (WSD) learning rate schedule.
+    
+    Args:
+        optimizer: Optimizer to schedule.
+        num_warmup_steps: Number of warmup steps (linear increase from 0 to initial_lr).
+        num_training_steps: Total number of training steps.
+        decay_step_size: Number of steps between each decay (learning rate *= decay_rate).
+        decay_rate: Multiplicative factor for decay (default: 0.1).
+        min_lr_ratio: Minimum learning rate as a ratio of initial_lr (default: 0.01).
+        last_epoch: The index of the last epoch (default: -1, starts from scratch).
+    """
+    
+    
+    def lr_lambda(current_step):
+        # Warmup phase: linear increase from 0 to initial_lr
+        if current_step < num_warmup_steps:
+            return float(current_step) / float(max(1, num_warmup_steps))
+        
+        elif  num_warmup_steps<= current_step < int(stable_ratio*num_training_steps):
+            return 1.0
+        else:
+            rate1=(num_training_steps-current_step)/(num_training_steps-int(stable_ratio*num_training_steps))
+            rate=min_lr_ratio+(1-min_lr_ratio)*rate1
+            return rate
+        
+    return LambdaLR(optimizer, lr_lambda, last_epoch)
 
 def get_cyclical_cosine_schedule_with_min_lr(optimizer, num_warmup_steps, num_training_steps, cycle_length, min_lr_ratio=0.1, last_epoch=-1):
     assert cycle_length is not None or num_training_steps is not None, "You must specify either cycle_length or num_training_steps"
@@ -126,7 +175,7 @@ def magnitude_pruning(tensor, prune_ratio):
 
 
 def _get_cyclical_cosine_schedule_with_min_lr_lambda(current_step, *, num_warmup_steps, cycle_length, min_lr_ratio):
-    assert 0 < min_lr_ratio <= 1.0, "min_lr_ratio must be in (0,1]"
+    assert 0 <= min_lr_ratio <= 1.0, "min_lr_ratio must be in [0,1]"
 
     # compute where we are in the current cycle
     cycle_step = current_step % cycle_length
